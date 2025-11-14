@@ -25,12 +25,24 @@
     }
   </style>
 
-  <!-- Cloudflare Web Analytics (把 token 换成你的) -->
+  <!-- Cloudflare Web Analytics (把 token 换成你的) --/ not working>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon='{"token":"YOUR_CF_TOKEN"}'></script>
+        data-cf-beacon='{"token":"YOUR_CF_TOKEN"}'></script>
+
+<!-- GA4 -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-R2XSCZV91Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-R2XSCZV91Y');
+</script>
+
 </head>
 
 <body>
-  <div class="note">I told you its empty</div>
+    <div class="note">I told you its empty</div>
 </body>
 </html>
