@@ -7,12 +7,30 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
   <style>
-    html,body{height:100%;margin:0;background:#fff;}
+    html,body{
+      height:100%;
+      margin:0;
+      background:#fff;
+    }
+    .note {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      font-weight: normal;
+      color: #000;
+      opacity: 0.55;   /* 更艺术、更不突兀 */
+      pointer-events: none;
+    }
   </style>
 
-  <!-- Cloudflare Analytics -->
+  <!-- Cloudflare Web Analytics (把 token 换成你的) -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token":"YOUR_CF_TOKEN"}'></script>
 </head>
-<body></body>
+
+<body>
+  <div class="note">I told you it’s empty.</div>
+</body>
 </html>
