@@ -1,126 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="referrer" content="no-referrer">
+<script>
+  (function () {
+    const noteEl = document.getElementById('note');
 
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: #fff;
-    }
-
-    .note {
-      position: fixed;
-      top: 10px;
-      left: 12px;
-      font-family: Arial, sans-serif;
-      font-size: 18px;
-      font-weight: normal;
-      color: #000;
-      opacity: 0.6;
-      pointer-events: none;
-      white-space: pre;
-    }
-
-    /* 默认：只显示光标，不显示文字 */
-    .cursor::after {
-      content: "";
-      display: inline-block;
-      width: 2px;
-      height: 0.8em;
-      background: #000;
-      margin-left: 3px;
-      margin-top: 4px;
-      animation: blink 1s steps(2, start) infinite;
-      vertical-align: baseline;
-    }
-
-    @keyframes blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
-    }
-  </style>
-
-  <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2XSCZV91Y"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-R2XSCZV91Y');
-  </script>
-
-</head>
-
-<body>
-  <div class="note" id="note"></div>
-
-  <script>
-    (function () {
-      const noteEl = document.getElementById('note');
-
-      // 检测是否是刷新
-      let isReload = false;
-      try {
-        const navEntries = performance.getEntriesByType &&
-                           performance.getEntriesByType('navigation');
-        if (navEntries && navEntries.length > 0) {
-          isReload = navEntries[0].type === 'reload';
-        } else if (performance.navigation) {
-          isReload = performance.navigation.type === 1;
-        }
-      } catch (e) {
-        isReload = false;
+    // 检测是否是刷新
+    let isReload = false;
+    try {
+      const navEntries = performance.getEntriesByType &&
+                         performance.getEntriesByType('navigation');
+      if (navEntries && navEntries.length > 0) {
+        isReload = navEntries[0].type === 'reload';
+      } else if (performance.navigation) {
+        isReload = performance.navigation.type === 1;
       }
+    } catch (e) {
+      isReload = false;
+    }
 
-      // 是否曾来过（本 tab 会话）
-      const VISIT_KEY = 'noinfo_hasVisited';
-      const hasVisited = sessionStorage.getItem(VISIT_KEY) === 'true';
+    // 是否曾来过（本 tab 会话）
+    const VISIT_KEY = 'noinfo_hasVisited';
+    const hasVisited = sessionStorage.getItem(VISIT_KEY) === 'true';
 
-      // 这句台词在本会话中是否已经出现过
-      const TEXT_SHOWN_KEY = 'noinfo_textShown';
-      const textShown = sessionStorage.getItem(TEXT_SHOWN_KEY) === 'true';
+    // 这句台词在本会话中是否已经出现过
+    const TEXT_SHOWN_KEY = 'noinfo_textShown';
+    const textShown = sessionStorage.getItem(TEXT_SHOWN_KEY) === 'true';
 
-      let message = "";
+    let message = "";
 
-      // 只有刷新 + 曾经来过 才触发随机事件
-      if (isReload && hasVisited) {
-        const r = Math.random();
+    // 只有刷新 + 曾经来过 才触发随机事件
+    if (isReload && hasVisited) {
+      const r = Math.random();
 
-        if (!textShown) {
-          // 还没说过那句话：只有机会刷出台词，不会出现 repo
-          if (r < 0.05) { // 台词概率（可以自己调）
-            message = 'I told you it<span style="display:inline-block;width:3px"></span>s empty';
-
-            sessionStorage.setItem(TEXT_SHOWN_KEY, 'true');
-          }
-        } else {
-          // 已经说过台词：现在才允许出现 repo 泄露
-          if (r < 0.005) { // repo 极小概率（可以改成 0.01 之类）
-            message = '[fallback] resolved from source: https://github.com/chqiu666/noinfoin';
-          }
+      if (!textShown) {
+        // 还没说过那句话：只有机会刷出台词，不会出现 repo
+        if (r < 0.05) {
+          message = 'I told you it<span style="display:inline-block;width:3px"></span>s empty';
+          sessionStorage.setItem(TEXT_SHOWN_KEY, 'true');
         }
-      }
-
-      // 设置内容
-      noteEl.textContent = message;
-
-      // 如果 message 是空 → 加 cursor 类（显示闪烁光标）
-      // 如果 message 有内容 → 不显示光标
-      if (message === "") {
-        noteEl.classList.add('cursor');
       } else {
-        noteEl.classList.remove('cursor');
+        // 已经说过台词：现在才允许出现 repo 泄露
+        if (r < 0.005) {
+          message = '[fallback] resolved from source: https://github.com/chqiu666/noinfoin';
+        }
       }
+    }
 
-      // 标记已经访问过
-      sessionStorage.setItem(VISIT_KEY, 'true');
-    })();
-  </script>
-</body>
-</html>
+    // ⚠ 最关键修正：用 innerHTML 而不是 textContent
+    noteEl.innerHTML = message;
+
+    // cursor 显示逻辑
+    if (message === "") {
+      noteEl.classList.add('cursor');
+    } else {
+      noteEl.classList.remove('cursor');
+    }
+
+    sessionStorage.setItem(VISIT_KEY, 'true');
+  })();
+</script>
