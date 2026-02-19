@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title></title>
@@ -8,7 +9,8 @@
   <meta name="referrer" content="no-referrer">
 
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
       margin: 0;
       background: #fff;
@@ -16,7 +18,7 @@
 
     .note {
       position: fixed;
-      top: 10px;
+      top: 9px;
       left: 12px;
       font-family: Arial, sans-serif;
       font-size: 18px;
@@ -27,22 +29,16 @@
       white-space: pre;
     }
 
-    /* 闪烁光标（默认状态） */
-    .cursor::after {
-      content: "";
+    /* 加载动画字符：用等宽字体保证 | / - \ 四帧宽度一致 */
+    .spinner-char {
       display: inline-block;
-      width: 2px;
-      height: 0.8em;
-      background: #000;
-      margin-left: 3px;
-      margin-top: 4px;
-      animation: blink 1s steps(2, start) infinite;
-      vertical-align: baseline;
-    }
-
-    @keyframes blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 17px;
+      font-weight: bold;
+      text-align: center;
+      margin-left: 0px;
+      position: relative;
+      top: 0px;
     }
   </style>
 
@@ -50,7 +46,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2XSCZV91Y"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-R2XSCZV91Y');
   </script>
@@ -58,20 +54,41 @@
 </head>
 
 <body>
-  <!-- 默认先给一个 cursor 类，这样即使 JS 整个挂掉也能看到光标 -->
-  <div class="note cursor" id="note"></div>
+  <!-- 默认先给一个 spinner，这样即使 JS 整个挂掉也能看到一个静态字符 -->
+  <div class="note" id="note"><span class="spinner-char" id="spinner">|</span></div>
 
   <script>
     (function () {
       try {
         const noteEl = document.getElementById('note');
+        const spinnerEl = document.getElementById('spinner');
         if (!noteEl) return; // 极端兜底
+
+        // spinner 动画：标准 ASCII 旋转序列
+        var spinnerFrames = ['/', '-', '\\', '|'];
+        var spinnerIndex = 0;
+        var spinnerTimer = null;
+
+        function startSpinner() {
+          if (spinnerTimer) return;
+          spinnerTimer = setInterval(function () {
+            spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
+            if (spinnerEl) spinnerEl.textContent = spinnerFrames[spinnerIndex];
+          }, 150);
+        }
+
+        function stopSpinner() {
+          if (spinnerTimer) {
+            clearInterval(spinnerTimer);
+            spinnerTimer = null;
+          }
+        }
 
         // 检测是否是刷新
         let isReload = false;
         try {
           const navEntries = performance.getEntriesByType &&
-                             performance.getEntriesByType('navigation');
+            performance.getEntriesByType('navigation');
           if (navEntries && navEntries.length > 0) {
             isReload = navEntries[0].type === 'reload';
           } else if (performance.navigation) {
@@ -109,25 +126,24 @@
           }
         }
 
-        // 用 innerHTML 才能解析 span（实现可控宽度空隙）
-        noteEl.innerHTML = message;
-
-        // 如果 message 是空 → 保持/添加 cursor 类（显示闪烁光标）
-        // 如果 message 有内容 → 移除 cursor（只显示文字）
+        // 如果 message 是空 → 显示 spinner 加载动画
+        // 如果 message 有内容 → 停止 spinner，显示文字
         if (message === "") {
-          noteEl.classList.add('cursor');
+          startSpinner();
         } else {
-          noteEl.classList.remove('cursor');
+          stopSpinner();
+          noteEl.innerHTML = message;
         }
 
         // 标记已经访问过
         sessionStorage.setItem(VISIT_KEY, 'true');
       } catch (e) {
         // 如果这里有任何异常，什么都不做，
-        // 保持 HTML 里原本的 <div class="note cursor">（至少还有光标）
+        // 保持 HTML 里原本的静态 | 字符
         console && console.warn && console.warn('noinfo.in script error:', e);
       }
     })();
   </script>
 </body>
+
 </html>
